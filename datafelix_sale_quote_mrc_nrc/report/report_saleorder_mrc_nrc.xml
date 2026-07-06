@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_saleorder_mrc_nrc" model="ir.actions.report">
+        <field name="name">Preventivo MRC/NRC</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">datafelix_sale_quote_mrc_nrc.report_saleorder_mrc_nrc</field>
+        <field name="report_file">datafelix_sale_quote_mrc_nrc.report_saleorder_mrc_nrc</field>
+        <field name="print_report_name">(object.state in ('draft', 'sent') and 'Preventivo MRC-NRC - %s' % (object.name)) or 'Ordine MRC-NRC - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

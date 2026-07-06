@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_view_tree_fatturato_columns" model="ir.ui.view">
+        <field name="name">res.partner.view.tree.fatturato.columns</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <field name="application_statistics" position="before">
+                <field name="x_contact_type" string="Tipologia Contatto" optional="show"/>
+                <field name="fatturato_generale" widget="monetary" string="Fatturato generale" optional="show"/>
+                <field name="fatturato_mensile" widget="monetary" string="Fatturato mensile" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

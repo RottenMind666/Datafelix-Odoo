@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
+        <field name="report_name">datafelix_sale_quote_mrc_nrc.report_saleorder_mrc_nrc</field>
+        <field name="report_file">datafelix_sale_quote_mrc_nrc.report_saleorder_mrc_nrc</field>
+    </record>
+
+    <record id="sale_pdf_quote_builder.action_report_saleorder_raw" model="ir.actions.report">
+        <field name="report_name">datafelix_sale_quote_mrc_nrc.report_saleorder_mrc_nrc</field>
+        <field name="report_file">datafelix_sale_quote_mrc_nrc.report_saleorder_mrc_nrc</field>
+    </record>
+
+    <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
+        <field name="report_name">datafelix_sale_quote_mrc_nrc.report_saleorder_pro_forma</field>
+        <field name="report_file">datafelix_sale_quote_mrc_nrc.report_saleorder_pro_forma</field>
+    </record>
+</odoo>

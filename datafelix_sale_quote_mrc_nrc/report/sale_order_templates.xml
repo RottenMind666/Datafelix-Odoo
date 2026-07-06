@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_saleorder_document">
+    <t t-call="web.basic_layout">
+        <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+        <t t-set="forced_vat" t-value="doc.fiscal_position_id.foreign_vat"/>
+        <t t-set="address"><div/></t>
+        <t t-set="information_block"><div/></t>
+        <t t-set="is_proforma" t-value="env.context.get('proforma', False)"/>
+        <t t-set="layout_document_title">
+            <span t-if="is_proforma">Offerta Pro-Forma n. </span>
+            <span t-else="">Offerta n. </span>
+            <span t-field="doc.name">SO0000</span>
+        </t>
+        <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
+        <t t-set="product_lines" t-value="lines_to_report.filtered(lambda l: not l.display_type and not l.is_downpayment)"/>
+
+        <div class="page o_df_offer_page">
+            <style type="text/css">
+                .o_df_offer_page {
+                    font-size: 12px;
+                    color: #222;
+                    margin-top: 10px !important;
+                    padding-top: 0 !important;
+                }
+                .o_df_offer_head_company {
+                    line-height: 1.25;
+                    text-align: left;
+                }
+                .o_df_offer_head_company img {
+                    display: block;
+                    margin: 0;
+                }
+                .o_df_offer_header {
+                    margin-top: 0 !important;
+                    align-items: flex-start;
+                }
+                .o_df_offer_title {
+                    color: #6f8a2b;
+                    font-size: 24px;
+                    font-weight: 700;
+                }
+                .o_df_offer_box {
+                    background: #ececec;
+                    border: 1px solid #cfcfcf;
+                    padding: 8px 10px;
+                }
+                .o_df_offer_box td {
+                    border: none !important;
+                    padding: 1px 0;
+                    font-size: 11px;
+                }
+                .o_df_offer_box td:first-child {
+                    color: #444;
+                    padding-right: 8px;
+                }
+                .o_df_offer_intro {
+                    margin-top: 14px;
+                }
+                .o_df_offer_intro p {
+                    margin-bottom: 6px;
+                }
+                .o_df_offer_lines {
+                    margin-top: 8px;
+                }
+                .o_df_offer_lines th {
+                    background: #96bc41;
+                    color: #111;
+                    border: 1px solid #54652f;
+                    font-size: 11px;
+                    padding: 4px;
+                }
+                .o_df_offer_lines td {
+                    border: 1px solid #6f6f6f;
+                    font-size: 11px;
+                    padding: 4px;
+                    vertical-align: top;
+                }
+                .o_df_offer_lines .o_col_num {
+                    width: 4%;
+                    text-align: center;
+                }
+                .o_df_offer_lines .o_col_desc {
+                    width: 48%;
+                }
+                .o_df_offer_lines .o_col_qty {
+                    width: 8%;
+                    text-align: center;
+                }
+                .o_df_offer_lines .o_col_price {
+                    width: 10%;
+                    text-align: right;
+                    white-space: nowrap;
+                }
+                .o_df_offer_lines .o_col_nrc {
+                    width: 10%;
+                    text-align: right;
+                    white-space: nowrap;
+                }
+                .o_df_offer_lines .o_col_final {
+                    width: 20%;
+                    text-align: right;
+                    white-space: nowrap;
+                }
+                .o_df_offer_lines .o_total_label {
+                    text-align: right;
+                    font-weight: 700;
+                    background: #f5f5f5;
+                }
+                .o_df_offer_lines .o_total_value {
+                    font-weight: 700;
+                    background: #f5f5f5;
+                }
+                .o_df_offer_lines .o_total_note {
+                    text-align: left;
+                    background: #f5f5f5;
+                }
+                .o_df_offer_desc_title {
+                    font-weight: 700;
+                }
+                .o_df_offer_desc_extra {
+                    color: #444;
+                    line-height: 1.2;
+                }
+                .o_df_offer_payments {
+                    margin-top: 10px;
+                    font-size: 12px;
+                }
+                .o_df_offer_payments .o_df_label {
+                    display: inline-block;
+                    min-width: 40px;
+                    font-weight: 700;
+                }
+                .o_df_offer_totals td {
+                    border: none;
+                    padding: 2px 0;
+                    font-size: 12px;
+                }
+                .o_df_offer_totals td:first-child {
+                    padding-right: 12px;
+                }
+                .o_df_offer_totals td:last-child {
+                    text-align: right;
+                    white-space: nowrap;
+                    font-weight: 700;
+                }
+                .o_df_offer_sign {
+                    margin-top: 28px;
+                }
+                .o_df_offer_footer {
+                    margin-top: 26px;
+                    border-top: 1px solid #b7b7b7;
+                    padding-top: 8px;
+                    font-size: 11px;
+                }
+            </style>
+
+            <div class="row mb-2 o_df_offer_header">
+                <div class="col-6 o_df_offer_head_company">
+                    <img t-if="doc.company_id.logo"
+                         t-att-src="image_data_uri(doc.company_id.logo)"
+                         alt="Company Logo"
+                         style="max-height: 72px; max-width: 320px;"/>
+                </div>
+                <div class="col-6 text-end">
+                    <div class="o_df_offer_title">
+                        <span t-if="is_proforma">PRO-FORMA</span>
+                        <span t-else="">PREVENTIVO</span>
+                    </div>
+                    <div class="fw-bold mt-1">N. <span t-field="doc.name"/></div>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-6">
+                    <div class="fw-bold mb-1">Destinatario</div>
+                    <div t-field="doc.partner_id.name"/>
+                    <div t-if="doc.partner_id.street" t-field="doc.partner_id.street"/>
+                    <div t-if="doc.partner_id.street2" t-field="doc.partner_id.street2"/>
+                    <div>
+                        <span t-if="doc.partner_id.zip" t-field="doc.partner_id.zip"/>
+                        <span t-if="doc.partner_id.city"> <span t-field="doc.partner_id.city"/></span>
+                    </div>
+                    <div t-if="doc.partner_id.state_id or doc.partner_id.country_id">
+                        <span t-if="doc.partner_id.state_id" t-field="doc.partner_id.state_id"/>
+                        <span t-if="doc.partner_id.country_id"> <span t-field="doc.partner_id.country_id"/></span>
+                    </div>
+                    <div t-if="doc.partner_id.vat">P.IVA <span t-field="doc.partner_id.vat"/></div>
+                </div>
+                <div class="col-6">
+                    <div class="o_df_offer_box">
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td>Data offerta</td>
+                                <td class="text-end"><span t-field="doc.date_order" t-options='{"widget": "date"}'/></td>
+                            </tr>
+                            <tr>
+                                <td>Numero dell'offerta</td>
+                                <td class="text-end"><span t-field="doc.name"/></td>
+                            </tr>
+                            <tr>
+                                <td>Numero cliente</td>
+                                <td class="text-end"><span t-esc="doc.partner_id.ref or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td>Offerta valida fino a</td>
+                                <td class="text-end"><span t-field="doc.validity_date" t-options='{"widget": "date"}'/></td>
+                            </tr>
+                            <tr>
+                                <td>Offerta redatta da</td>
+                                <td class="text-end"><span t-esc="doc.user_id.name or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td>Referente</td>
+                                <td class="text-end"><span t-esc="doc.partner_id.name or '-'"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="o_df_offer_intro">
+                <p>Spett.le <strong t-esc="doc.partner_id.name or ''"/></p>
+                <p>La ringraziamo per il Suo interesse nei nostri prodotti e servizi.</p>
+                <p>
+                    Con la presente Le sottoponiamo la seguente offerta
+                    <strong><u>a lei riservata e non divulgabile</u></strong>.
+                </p>
+            </div>
+
+            <table class="table table-sm o_df_offer_lines">
+                <thead>
+                    <tr>
+                        <th class="o_col_num">N.</th>
+                        <th class="o_col_desc">PRODOTTO/SERVIZIO</th>
+                        <th class="o_col_qty">QTA</th>
+                        <th class="o_col_price">MRC</th>
+                        <th class="o_col_nrc">NRC</th>
+                        <th class="o_col_final">Prezzo Finale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-set="line_number" t-value="0"/>
+                    <t t-foreach="product_lines" t-as="line">
+                        <t t-set="line_number" t-value="line_number + 1"/>
+                        <tr name="tr_product">
+                            <td class="o_col_num"><span t-esc="line_number"/></td>
+                            <td class="o_col_desc" name="td_product_name">
+                                <span t-field="line.name" style="white-space: pre-line;"/>
+                            </td>
+                            <td class="o_col_qty" name="td_product_quantity">
+                                <span t-field="line.product_uom_qty" t-options='{"widget": "float", "decimal_precision": "Product Unit"}'/>
+                            </td>
+                            <td class="o_col_price" name="td_product_priceunit">
+                                <span t-field="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </td>
+                            <td class="o_col_nrc" name="td_product_nrc">
+                                <span t-field="line.una_tantum_price" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </td>
+                            <td class="o_col_final" name="td_product_subtotal">
+                                <span t-field="line.price_subtotal" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </td>
+                        </tr>
+                    </t>
+
+                    <tr>
+                        <td colspan="4" class="o_total_label">Totale NRC</td>
+                        <td class="o_col_nrc o_total_value">
+                            <span t-field="doc.total_nrc" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        </td>
+                        <td class="o_total_note">all'ordine</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="o_total_label">Totale MRC</td>
+                        <td class="o_col_nrc o_total_value">
+                            <span t-field="doc.total_mrc" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        </td>
+                        <td class="o_total_note">da concordare</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="o_total_label">Imponibile</td>
+                        <td class="o_col_nrc o_total_value">
+                            <span t-field="doc.amount_untaxed" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        </td>
+                        <td class="o_total_note"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="o_total_label">IVA</td>
+                        <td class="o_col_nrc o_total_value">
+                            <span t-field="doc.amount_tax" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        </td>
+                        <td class="o_total_note"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="o_total_label">Totale</td>
+                        <td class="o_col_nrc o_total_value">
+                            <span t-field="doc.amount_total" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        </td>
+                        <td class="o_total_note"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="o_df_offer_payments">
+                <div class="fw-bold">Condizioni di pagamento:</div>
+                <div>Costo attivazione (NRC) all'ordine</div>
+                <div>MRC da concordare</div>
+                <div t-if="doc.payment_term_id" class="mt-1">
+                    <span t-field="doc.payment_term_id.name"/>
+                </div>
+                <div t-if="doc.payment_term_id and doc.payment_term_id.note">
+                    <span t-field="doc.payment_term_id.note"/>
+                </div>
+            </div>
+
+            <div class="row o_df_offer_sign">
+                <div class="col-6">Cordiali Saluti</div>
+                <div class="col-6 text-end">Firma Per Accettazione</div>
+            </div>
+
+            <div class="row o_df_offer_footer">
+                <div class="col-6">
+                    <div class="fw-bold" t-field="doc.company_id.name"/>
+                    <div t-if="doc.company_id.street" t-field="doc.company_id.street"/>
+                    <div>
+                        <span t-if="doc.company_id.zip" t-field="doc.company_id.zip"/>
+                        <span t-if="doc.company_id.city"> <span t-field="doc.company_id.city"/></span>
+                    </div>
+                    <div t-if="doc.company_id.country_id" t-field="doc.company_id.country_id"/>
+                    <div t-if="doc.company_id.vat">P.IVA <span t-field="doc.company_id.vat"/></div>
+                </div>
+                <div class="col-6">
+                    <div class="fw-bold">Informazioni di contatto</div>
+                    <div><span t-esc="doc.user_id.name or doc.company_id.name or '-'"/></div>
+                    <div>Telefono <span t-esc="doc.user_id.phone or doc.company_id.phone or '-'"/></div>
+                    <div>Email: <span t-esc="doc.user_id.email or doc.company_id.email or '-'"/></div>
+                    <div t-if="doc.company_id.website" t-field="doc.company_id.website"/>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
+
+<template id="report_saleorder_raw">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="datafelix_sale_quote_mrc_nrc.report_saleorder_document" t-lang="doc.partner_id.lang"/>
+        </t>
+    </t>
+</template>
+
+<template id="report_saleorder">
+    <t t-call="datafelix_sale_quote_mrc_nrc.report_saleorder_raw"/>
+</template>
+
+<template id="report_saleorder_mrc_nrc">
+    <t t-call="datafelix_sale_quote_mrc_nrc.report_saleorder_raw"/>
+</template>
+
+<template id="report_saleorder_pro_forma">
+    <t t-call="web.html_container">
+        <t t-set="docs" t-value="docs.with_context(proforma=True)"/>
+        <t t-foreach="docs" t-as="doc">
+            <t t-call="datafelix_sale_quote_mrc_nrc.report_saleorder_document" t-lang="doc.partner_id.lang"/>
+        </t>
+    </t>
+</template>
+
+<template id="quote_document_layout_preview">
+    <t t-call="web.html_preview_container">
+        <t t-call="datafelix_sale_quote_mrc_nrc.report_saleorder_document"/>
+    </t>
+</template>
+
+</odoo>
